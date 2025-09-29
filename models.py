@@ -50,6 +50,6 @@ class StoredSurveyRecord(BaseModel):
     hashed_age: str
     rating: int = Field(..., ge=1, le=5)
     comments: Optional[str] = Field(None, max_length=1000)
-
+    submission_id: str 
     received_at: datetime
     ip: str
