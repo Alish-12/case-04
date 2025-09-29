@@ -30,14 +30,21 @@ def submit_survey():
     except ValidationError as ve:
         return jsonify({"error": "validation_error", "detail": ve.errors()}), 422
 
-    data = submission.dict()  # convert to a dictionary
-    if "email" in data:
-        data["email"] = hashlib.sha256(data["email"].encode()).hexdigest()
-    if "age" in data:
-        data["age"] = hashlib.sha256(str(data["age"]).encode()).hexdigest()
+    def sha256_hex(s: str) -> str:
+        return hashlib.sha256(s.encode("utf-8")).hexdigest()
+    
+    email_norm = submission.email.strip().lower()
+    hashed_email = sha256_hex(email_norm)
+    hashed_age = sha256_hex(str(submission.age))
 
     record = StoredSurveyRecord(
-        **data,
+        name = submission.name,
+        consent = submission.consent,
+        hashed_email = hashed_email,
+        hashed_age = hashed_age,
+        rating = submission.rating,
+        comments = submission.comments,
+
         received_at=datetime.now(timezone.utc),
         ip=request.headers.get("X-Forwarded-For", request.remote_addr or "")
     )
