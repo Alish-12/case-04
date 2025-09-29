@@ -37,6 +37,9 @@ def submit_survey():
     hashed_email = sha256_hex(email_norm)
     hashed_age = sha256_hex(str(submission.age))
 
+    hour_stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    submission_id = submission.submission_id or sha256_hex(email_norm + hour_stamp)
+
     record = StoredSurveyRecord(
         name = submission.name,
         consent = submission.consent,
@@ -44,6 +47,7 @@ def submit_survey():
         hashed_age = hashed_age,
         rating = submission.rating,
         comments = submission.comments,
+        submission_id=submission_id,
 
         received_at=datetime.now(timezone.utc),
         ip=request.headers.get("X-Forwarded-For", request.remote_addr or "")
